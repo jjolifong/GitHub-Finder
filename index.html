@@ -1,22 +1,51 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GitHub Finder</title>
+  <title>Search GitHub Users</title>
   <style>
-    :root {
-      --bg: #0d1117;
+    :root,
+    [data-theme="light"] {
+      --page-bg: #f6f8fa;
+      --surface: #ffffff;
+      --border: #d0d7de;
+      --text: #1f2328;
+      --muted: #656d76;
+      --accent: #0969da;
+      --accent-hover: #0550ae;
+      --header-bar: #0969da;
+      --header-text: #ffffff;
+      --danger-bg: #ffebe9;
+      --danger-border: #ff818266;
+      --danger-text: #cf222e;
+      --info-bg: #ddf4ff;
+      --info-border: #54aeff66;
+      --info-text: #0969da;
+      --badge-bg: #f6f8fa;
+      --focus-ring: rgba(9, 105, 218, 0.25);
+      --radius: 10px;
+      --font: "Segoe UI", system-ui, -apple-system, sans-serif;
+    }
+
+    [data-theme="dark"] {
+      --page-bg: #0d1117;
       --surface: #161b22;
       --border: #30363d;
       --text: #e6edf3;
       --muted: #8b949e;
       --accent: #58a6ff;
       --accent-hover: #79b8ff;
-      --danger: #f85149;
-      --success: #3fb950;
-      --radius: 10px;
-      --font: "Segoe UI", system-ui, -apple-system, sans-serif;
+      --header-bar: #161b22;
+      --header-text: #e6edf3;
+      --danger-bg: rgba(248, 81, 73, 0.12);
+      --danger-border: rgba(248, 81, 73, 0.35);
+      --danger-text: #ff7b72;
+      --info-bg: rgba(88, 166, 255, 0.1);
+      --info-border: rgba(88, 166, 255, 0.3);
+      --info-text: var(--accent-hover);
+      --badge-bg: #21262d;
+      --focus-ring: rgba(88, 166, 255, 0.25);
     }
 
     * {
@@ -26,34 +55,81 @@
     body {
       margin: 0;
       min-height: 100vh;
+      display: flex;
+      flex-direction: column;
       font-family: var(--font);
-      background: var(--bg);
+      background: var(--page-bg);
       color: var(--text);
       line-height: 1.5;
     }
 
-    .wrap {
-      max-width: 720px;
+    .app-header {
+      background: var(--header-bar);
+      color: var(--header-text);
+      padding: 1.1rem 1.25rem 1.25rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    }
+
+    .app-header-inner {
+      max-width: 900px;
       margin: 0 auto;
-      padding: 2rem 1.25rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
     }
 
-    header {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-
-    header h1 {
-      margin: 0 0 0.5rem;
-      font-size: 1.75rem;
-      font-weight: 600;
-      letter-spacing: -0.02em;
-    }
-
-    header p {
+    .brand h1 {
       margin: 0;
-      color: var(--muted);
-      font-size: 0.95rem;
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: inherit;
+    }
+
+    .brand p {
+      margin: 0.35rem 0 0;
+      font-size: 0.92rem;
+      opacity: 0.92;
+      max-width: 36rem;
+    }
+
+    .theme-toggle {
+      flex-shrink: 0;
+      margin-top: 0.1rem;
+      padding: 0.45rem 0.85rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: var(--radius);
+      border: 1px solid rgba(255, 255, 255, 0.45);
+      background: rgba(255, 255, 255, 0.12);
+      color: var(--header-text);
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .theme-toggle:hover {
+      background: rgba(255, 255, 255, 0.22);
+      border-color: rgba(255, 255, 255, 0.6);
+    }
+
+    [data-theme="dark"] .theme-toggle {
+      border-color: var(--border);
+      background: #21262d;
+      color: var(--text);
+    }
+
+    [data-theme="dark"] .theme-toggle:hover {
+      background: #30363d;
+      border-color: var(--muted);
+    }
+
+    .wrap {
+      flex: 1;
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 1.75rem 1.25rem 2rem;
     }
 
     .search-row {
@@ -76,7 +152,7 @@
 
     .search-row input:focus {
       border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.2);
+      box-shadow: 0 0 0 3px var(--focus-ring);
     }
 
     .search-row input::placeholder {
@@ -118,15 +194,15 @@
     }
 
     .message.warn {
-      background: rgba(248, 81, 73, 0.12);
-      border: 1px solid rgba(248, 81, 73, 0.35);
-      color: #ff7b72;
+      background: var(--danger-bg);
+      border: 1px solid var(--danger-border);
+      color: var(--danger-text);
     }
 
     .message.info {
-      background: rgba(88, 166, 255, 0.1);
-      border: 1px solid rgba(88, 166, 255, 0.3);
-      color: var(--accent-hover);
+      background: var(--info-bg);
+      border: 1px solid var(--info-border);
+      color: var(--info-text);
     }
 
     .card {
@@ -136,6 +212,7 @@
       padding: 1.5rem;
       margin-bottom: 1.25rem;
       display: none;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
     }
 
     .card.visible {
@@ -155,61 +232,130 @@
       border-radius: 50%;
       border: 2px solid var(--border);
       object-fit: cover;
+      flex-shrink: 0;
     }
 
-    .profile-body {
+    .profile-main {
       flex: 1;
-      min-width: 200px;
+      min-width: 220px;
     }
 
-    .profile-body h2 {
-      margin: 0 0 0.25rem;
+    .profile-head {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .profile-head .titles h2 {
+      margin: 0 0 0.2rem;
       font-size: 1.35rem;
     }
 
-    .profile-body .login {
+    .profile-head .login {
       color: var(--muted);
       font-size: 0.95rem;
-      margin-bottom: 0.75rem;
     }
 
-    .profile-details {
-      margin: 0 0 0.75rem;
-      padding: 0;
-      list-style: none;
-      font-size: 0.9rem;
+    .stat-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: flex-end;
+    }
+
+    .badge {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-width: 5.5rem;
+      padding: 0.45rem 0.65rem;
+      background: var(--badge-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .badge-label {
+      font-size: 0.65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
       color: var(--muted);
+      line-height: 1.2;
     }
 
-    .profile-details li {
-      margin-bottom: 0.35rem;
+    .badge strong {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-top: 0.15rem;
+    }
+
+    .profile-table-wrap {
+      margin-bottom: 1rem;
+      overflow-x: auto;
+    }
+
+    .profile-table-wrap.is-empty {
+      display: none;
+    }
+
+    .profile-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .profile-table th,
+    .profile-table td {
+      padding: 0.55rem 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    .profile-table tr:last-child th,
+    .profile-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .profile-table th {
+      width: 38%;
+      max-width: 11rem;
+      background: var(--badge-bg);
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .profile-table td {
+      color: var(--text);
       word-break: break-word;
     }
 
-    .profile-details a {
+    .profile-table a {
       color: var(--accent);
       text-decoration: none;
     }
 
-    .profile-details a:hover {
+    .profile-table a:hover {
       text-decoration: underline;
-    }
-
-    .profile-details .label {
-      color: var(--muted);
-      font-weight: 500;
-      margin-right: 0.35rem;
     }
 
     .btn-profile {
       display: inline-block;
-      margin-top: 0.5rem;
       padding: 0.5rem 1rem;
       font-size: 0.9rem;
       font-weight: 600;
       border-radius: var(--radius);
       border: 1px solid var(--border);
-      background: var(--bg);
+      background: var(--page-bg);
       color: var(--accent);
       text-decoration: none;
       cursor: pointer;
@@ -217,29 +363,9 @@
     }
 
     .btn-profile:hover {
-      background: #21262d;
+      background: var(--badge-bg);
       border-color: var(--accent);
       color: var(--accent-hover);
-    }
-
-    .stats {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      margin-top: 0.5rem;
-    }
-
-    .stat {
-      font-size: 0.9rem;
-    }
-
-    .stat strong {
-      color: var(--text);
-      font-weight: 600;
-    }
-
-    .stat span {
-      color: var(--muted);
     }
 
     .contrib-wrap {
@@ -262,7 +388,7 @@
       display: block;
       border-radius: 6px;
       border: 1px solid var(--border);
-      background: var(--bg);
+      background: var(--page-bg);
     }
 
     .repos h3 {
@@ -287,6 +413,29 @@
       padding-bottom: 0;
     }
 
+    .repo-list li.repo-item-enter {
+      animation: repoItemEnter 0.42s ease-out forwards;
+    }
+
+    @keyframes repoItemEnter {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .repo-list li.repo-item-enter {
+        animation: none;
+        opacity: 1;
+        transform: none;
+      }
+    }
+
     .repo-list a {
       color: var(--accent);
       text-decoration: none;
@@ -301,6 +450,35 @@
       font-size: 0.8rem;
       color: var(--muted);
       margin-top: 0.25rem;
+    }
+
+    .repos-load-more {
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .repos-load-more[hidden] {
+      display: none !important;
+    }
+
+    .repos-load-more-btn {
+      padding: 0.5rem 1.35rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--accent);
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .repos-load-more-btn:hover {
+      background: var(--badge-bg);
+      border-color: var(--accent);
+      color: var(--accent-hover);
     }
 
     .loading {
@@ -328,60 +506,110 @@
         transform: rotate(360deg);
       }
     }
+
+    .app-footer {
+      text-align: center;
+      padding: 1.25rem 1rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <h1>GitHub Finder</h1>
-      <p>GitHub 사용자명으로 프로필과 최근 저장소를 조회합니다.</p>
-    </header>
+  <header class="app-header">
+    <div class="app-header-inner">
+      <div class="brand">
+        <h1>Search GitHub Users</h1>
+        <p>Enter a username to fetch a user profile and repos</p>
+      </div>
+      <button type="button" class="theme-toggle" id="themeToggle" aria-label="Switch to dark mode">
+        Dark
+      </button>
+    </div>
+  </header>
 
+  <div class="wrap">
     <form class="search-row" id="searchForm" autocomplete="off">
       <input
         type="text"
         id="usernameInput"
-        placeholder="사용자명 (예: octocat)"
-        aria-label="GitHub 사용자명"
+        placeholder="Username (e.g. octocat)"
+        aria-label="GitHub username"
       />
-      <button type="submit" id="searchBtn">검색</button>
+      <button type="submit" id="searchBtn">Search</button>
     </form>
 
     <div class="message warn" id="msgEmpty" role="status"></div>
     <div class="message warn" id="msgError" role="status"></div>
     <div class="message info" id="msgInfo" role="status"></div>
 
-    <div class="loading" id="loading" aria-busy="true" aria-label="불러오는 중">
+    <div class="loading" id="loading" aria-busy="true" aria-label="Loading">
       <div class="spinner" role="presentation"></div>
     </div>
 
     <section class="card" id="profileCard" aria-live="polite">
       <div class="profile">
         <img class="avatar" id="avatar" src="" alt="" width="120" height="120" />
-        <div class="profile-body">
-          <h2 id="displayName"></h2>
-          <div class="login" id="loginName"></div>
-          <ul class="profile-details" id="profileDetails"></ul>
-          <div class="stats">
-            <div class="stat"><strong id="followers">0</strong> <span>팔로워</span></div>
-            <div class="stat"><strong id="following">0</strong> <span>팔로잉</span></div>
-            <div class="stat"><strong id="publicRepos">0</strong> <span>공개 저장소</span></div>
-            <div class="stat"><strong id="publicGists">0</strong> <span>공개 Gist</span></div>
+        <div class="profile-main">
+          <div class="profile-head">
+            <div class="titles">
+              <h2 id="displayName"></h2>
+              <div class="login" id="loginName"></div>
+            </div>
+            <div class="stat-badges" aria-label="User statistics">
+              <div class="badge">
+                <span class="badge-label">Public Repos</span>
+                <strong id="publicRepos">0</strong>
+              </div>
+              <div class="badge">
+                <span class="badge-label">Public Gists</span>
+                <strong id="publicGists">0</strong>
+              </div>
+              <div class="badge">
+                <span class="badge-label">Followers</span>
+                <strong id="followers">0</strong>
+              </div>
+              <div class="badge">
+                <span class="badge-label">Following</span>
+                <strong id="following">0</strong>
+              </div>
+            </div>
           </div>
+
+          <div class="profile-table-wrap is-empty" id="profileTableWrap">
+            <table class="profile-table" id="profileTable">
+              <tbody id="profileTableBody"></tbody>
+            </table>
+          </div>
+
           <a class="btn-profile" id="viewProfileBtn" href="#" target="_blank" rel="noopener noreferrer">View Profile</a>
         </div>
       </div>
       <div class="contrib-wrap">
-        <h3>기여 활동</h3>
-        <img id="contribChart" src="" alt="기여 그래프" width="721" height="112" loading="lazy" />
+        <h3>Contributions</h3>
+        <img
+          id="contribChart"
+          alt="Contribution graph"
+          width="721"
+          height="112"
+          decoding="async"
+          referrerpolicy="no-referrer"
+        />
       </div>
     </section>
 
     <section class="card repos" id="reposCard">
-      <h3>최신 저장소</h3>
+      <h3>Latest Repositories</h3>
       <ul class="repo-list" id="repoList"></ul>
+      <div class="repos-load-more" id="reposLoadMoreWrap" hidden>
+        <button type="button" class="repos-load-more-btn" id="reposLoadMoreBtn">더 보기</button>
+      </div>
     </section>
   </div>
+
+  <footer class="app-footer">Made by JJorifong</footer>
 
   <script>
     class GitHubFinder {
@@ -398,7 +626,8 @@
         this.avatar = document.getElementById("avatar");
         this.displayName = document.getElementById("displayName");
         this.loginName = document.getElementById("loginName");
-        this.profileDetails = document.getElementById("profileDetails");
+        this.profileTableBody = document.getElementById("profileTableBody");
+        this.profileTableWrap = document.getElementById("profileTableWrap");
         this.followers = document.getElementById("followers");
         this.following = document.getElementById("following");
         this.publicRepos = document.getElementById("publicRepos");
@@ -406,8 +635,48 @@
         this.viewProfileBtn = document.getElementById("viewProfileBtn");
         this.contribChart = document.getElementById("contribChart");
         this.repoList = document.getElementById("repoList");
+        this.reposLoadMoreWrap = document.getElementById("reposLoadMoreWrap");
+        this.reposLoadMoreBtn = document.getElementById("reposLoadMoreBtn");
+        this.themeToggle = document.getElementById("themeToggle");
+
+        this.themeStorageKey = "github-finder-theme";
+        this.cachedRepos = [];
+        this.reposVisibleCount = 0;
+        this.reposPageSize = 5;
 
         this.form.addEventListener("submit", (e) => this.onSubmit(e));
+        this.themeToggle.addEventListener("click", () => this.toggleTheme());
+        this.reposLoadMoreBtn.addEventListener("click", () =>
+          this.onReposLoadMore()
+        );
+        this.applyTheme(this.readStoredTheme(), false);
+      }
+
+      readStoredTheme() {
+        const v = localStorage.getItem(this.themeStorageKey);
+        if (v === "dark" || v === "light") return v;
+        return "light";
+      }
+
+      applyTheme(theme, persist) {
+        document.documentElement.setAttribute("data-theme", theme);
+        if (persist !== false) {
+          localStorage.setItem(this.themeStorageKey, theme);
+        }
+        const isDark = theme === "dark";
+        this.themeToggle.textContent = isDark ? "Light" : "Dark";
+        this.themeToggle.setAttribute(
+          "aria-label",
+          isDark ? "Switch to light mode" : "Switch to dark mode"
+        );
+      }
+
+      toggleTheme() {
+        const next =
+          document.documentElement.getAttribute("data-theme") === "dark"
+            ? "light"
+            : "dark";
+        this.applyTheme(next, true);
       }
 
       hideMessages() {
@@ -418,14 +687,14 @@
 
       showEmpty() {
         this.hideMessages();
-        this.msgEmpty.textContent = "사용자명을 입력한 뒤 검색해 주세요.";
+        this.msgEmpty.textContent = "Please enter a username to search.";
         this.msgEmpty.classList.add("visible");
       }
 
       show404() {
         this.hideMessages();
         this.msgError.textContent =
-          "해당 사용자를 찾을 수 없습니다. (404) 사용자명을 확인해 주세요.";
+          "User not found (404). Check the username and try again.";
         this.msgError.classList.add("visible");
       }
 
@@ -444,8 +713,12 @@
       hideResults() {
         this.profileCard.classList.remove("visible");
         this.reposCard.classList.remove("visible");
+        this.cachedRepos = [];
+        this.reposVisibleCount = 0;
         this.repoList.innerHTML = "";
-        this.profileDetails.innerHTML = "";
+        this.reposLoadMoreWrap.hidden = true;
+        this.profileTableBody.innerHTML = "";
+        this.profileTableWrap.classList.add("is-empty");
         this.contribChart.removeAttribute("src");
       }
 
@@ -459,14 +732,18 @@
       }
 
       formatNumber(n) {
-        return typeof n === "number" ? n.toLocaleString("ko-KR") : "0";
+        const num = typeof n === "number" ? n : Number(n);
+        if (typeof num === "number" && Number.isFinite(num)) {
+          return num.toLocaleString("en-US");
+        }
+        return "0";
       }
 
       formatMemberSince(iso) {
         if (!iso) return "";
         const d = new Date(iso);
         if (Number.isNaN(d.getTime())) return iso;
-        return new Intl.DateTimeFormat("ko-KR", {
+        return new Intl.DateTimeFormat("en-US", {
           year: "numeric",
           month: "long",
           day: "numeric",
@@ -481,35 +758,58 @@
         return "https://" + t;
       }
 
-      renderProfileDetails(user) {
-        const items = [];
-        const pushRow = (label, html) => {
-          if (!html) return;
-          items.push(`<li><span class="label">${this.escapeHtml(label)}</span>${html}</li>`);
-        };
+      pushTableRow(rows, label, valueHtml) {
+        if (!valueHtml) return;
+        rows.push(
+          `<tr><th scope="row">${this.escapeHtml(label)}</th><td>${valueHtml}</td></tr>`
+        );
+      }
 
-        if (user.company) {
-          pushRow("회사", this.escapeHtml(user.company));
+      renderProfileTable(user) {
+        const rows = [];
+
+        const company =
+          user.company != null ? String(user.company).trim() : "";
+        if (company) {
+          this.pushTableRow(rows, "Company (회사)", this.escapeHtml(company));
         }
-        if (user.blog) {
-          const url = this.normalizeBlogUrl(user.blog);
+
+        const blog = user.blog != null ? String(user.blog).trim() : "";
+        if (blog) {
+          const url = this.normalizeBlogUrl(blog);
           const safe = this.escapeHtml(url);
-          const text = this.escapeHtml(String(user.blog).trim());
-          pushRow("웹사이트", `<a href="${safe}" target="_blank" rel="noopener noreferrer">${text}</a>`);
-        }
-        if (user.location) {
-          pushRow("위치", this.escapeHtml(user.location));
-        }
-        if (user.created_at) {
-          pushRow("가입일", this.escapeHtml(this.formatMemberSince(user.created_at)));
+          const text = this.escapeHtml(blog);
+          this.pushTableRow(
+            rows,
+            "Website/Blog",
+            `<a href="${safe}" target="_blank" rel="noopener noreferrer">${text}</a>`
+          );
         }
 
-        this.profileDetails.innerHTML = items.join("");
+        const location =
+          user.location != null ? String(user.location).trim() : "";
+        if (location) {
+          this.pushTableRow(
+            rows,
+            "Location (위치)",
+            this.escapeHtml(location)
+          );
+        }
+
+        if (user.created_at) {
+          this.pushTableRow(
+            rows,
+            "Member Since",
+            this.escapeHtml(this.formatMemberSince(user.created_at))
+          );
+        }
+
+        this.profileTableBody.innerHTML = rows.join("");
+        this.profileTableWrap.classList.toggle("is-empty", rows.length === 0);
       }
 
       contribChartUrl(login) {
-        const base = "https://ghchart.ssh.imtqy.com/";
-        return base + encodeURIComponent(login);
+        return "https://grass-graph.moshimo.works/images/" + login + ".png";
       }
 
       repoWatchersCount(r) {
@@ -517,6 +817,136 @@
         if (typeof r.watchers_count === "number") return r.watchers_count;
         if (typeof r.watchers === "number") return r.watchers;
         return 0;
+      }
+
+      repoForksCount(r) {
+        const n = r.forks;
+        if (typeof n === "number" && Number.isFinite(n)) return n;
+        const parsed = Number(n);
+        return Number.isFinite(parsed) ? parsed : 0;
+      }
+
+      createRepoListItem(r, options) {
+        const opts = options || {};
+        const li = document.createElement("li");
+        if (opts.animateEnter) {
+          li.classList.add("repo-item-enter");
+        }
+        const link = document.createElement("a");
+        link.href = r.html_url;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.textContent = r.name;
+        li.appendChild(link);
+        const meta = document.createElement("div");
+        meta.className = "repo-meta";
+        const parts = [];
+        if (r.language) parts.push(r.language);
+        if (r.stargazers_count != null) {
+          parts.push("★ " + this.formatNumber(r.stargazers_count));
+        }
+        const w = this.repoWatchersCount(r);
+        parts.push("Watchers " + this.formatNumber(w));
+        parts.push("Forks " + this.formatNumber(this.repoForksCount(r)));
+        if (r.updated_at) {
+          try {
+            parts.push(
+              "Updated: " +
+                new Date(r.updated_at).toLocaleDateString("en-US")
+            );
+          } catch {
+            parts.push("Updated: " + r.updated_at);
+          }
+        }
+        meta.textContent = parts.join(" · ");
+        li.appendChild(meta);
+        return li;
+      }
+
+      syncReposLoadMoreButton() {
+        const hasMore =
+          this.cachedRepos.length > 0 &&
+          this.reposVisibleCount < this.cachedRepos.length;
+        this.reposLoadMoreWrap.hidden = !hasMore;
+      }
+
+      populateReposSection(repos) {
+        this.cachedRepos = repos;
+        this.reposVisibleCount = 0;
+        this.repoList.innerHTML = "";
+
+        if (!repos.length) {
+          const li = document.createElement("li");
+          li.textContent = "No public repositories.";
+          li.style.color = "var(--muted)";
+          this.repoList.appendChild(li);
+          this.reposLoadMoreWrap.hidden = true;
+          return;
+        }
+
+        const first = Math.min(this.reposPageSize, repos.length);
+        for (let i = 0; i < first; i++) {
+          this.repoList.appendChild(this.createRepoListItem(repos[i]));
+        }
+        this.reposVisibleCount = first;
+        this.syncReposLoadMoreButton();
+      }
+
+      onReposLoadMore() {
+        if (!this.cachedRepos.length) return;
+        const next = Math.min(
+          this.reposVisibleCount + this.reposPageSize,
+          this.cachedRepos.length
+        );
+        let firstNewLi = null;
+        for (let i = this.reposVisibleCount; i < next; i++) {
+          const li = this.createRepoListItem(this.cachedRepos[i], {
+            animateEnter: true,
+          });
+          if (!firstNewLi) firstNewLi = li;
+          this.repoList.appendChild(li);
+        }
+        this.reposVisibleCount = next;
+        this.syncReposLoadMoreButton();
+
+        if (firstNewLi) {
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              firstNewLi.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+                inline: "nearest",
+              });
+            });
+          });
+        }
+      }
+
+      async fetchAllReposForUser(login) {
+        const all = [];
+        let page = 1;
+        const perPage = 100;
+        const maxPages = 50;
+        while (page <= maxPages) {
+          const url =
+            "https://api.github.com/users/" +
+            encodeURIComponent(login) +
+            "/repos?sort=updated&direction=desc&per_page=" +
+            perPage +
+            "&page=" +
+            page;
+          const res = await fetch(url);
+          if (!res.ok) {
+            if (page === 1) return null;
+            break;
+          }
+          const chunk = await res.json();
+          if (!Array.isArray(chunk) || chunk.length === 0) break;
+          all.push(...chunk);
+          if (chunk.length < perPage) break;
+          page++;
+        }
+        return all;
       }
 
       async onSubmit(e) {
@@ -535,10 +965,6 @@
 
         const userUrl =
           "https://api.github.com/users/" + encodeURIComponent(username);
-        const reposUrl =
-          "https://api.github.com/users/" +
-          encodeURIComponent(username) +
-          "/repos?sort=updated&direction=desc&per_page=10";
 
         try {
           const userRes = await fetch(userUrl);
@@ -549,14 +975,14 @@
           }
 
           if (!userRes.ok) {
-            throw new Error("프로필을 불러오지 못했습니다. (" + userRes.status + ")");
+            throw new Error("Could not load profile (" + userRes.status + ")");
           }
 
           const user = await userRes.json();
           const login = user.login || username;
 
           this.avatar.src = user.avatar_url || "";
-          this.avatar.alt = login + " 프로필 이미지";
+          this.avatar.alt = login + " profile photo";
 
           const name = user.name || login;
           this.displayName.textContent = name;
@@ -567,74 +993,32 @@
           this.publicRepos.textContent = this.formatNumber(user.public_repos);
           this.publicGists.textContent = this.formatNumber(user.public_gists);
 
-          this.renderProfileDetails(user);
+          this.renderProfileTable(user);
 
-          const profileUrl = user.html_url || "https://github.com/" + encodeURIComponent(login);
+          const profileUrl =
+            user.html_url || "https://github.com/" + encodeURIComponent(login);
           this.viewProfileBtn.href = profileUrl;
-
-          this.contribChart.src = this.contribChartUrl(login);
-          this.contribChart.alt = login + " 기여 그래프";
 
           this.profileCard.classList.add("visible");
 
-          const reposRes = await fetch(reposUrl);
+          this.contribChart.src = this.contribChartUrl(login);
+          this.contribChart.alt = login + " contribution graph";
 
-          if (!reposRes.ok) {
+          const repos = await this.fetchAllReposForUser(login);
+
+          if (repos === null) {
             this.hideMessages();
             this.msgInfo.textContent =
-              "저장소 목록은 가져오지 못했지만 프로필은 표시됩니다.";
+              "Repositories could not be loaded; profile is still shown.";
             this.msgInfo.classList.add("visible");
             this.reposCard.classList.add("visible");
             return;
           }
 
-          const repos = await reposRes.json();
-
-          this.repoList.innerHTML = "";
-          if (!repos.length) {
-            const li = document.createElement("li");
-            li.textContent = "공개 저장소가 없습니다.";
-            li.style.color = "var(--muted)";
-            this.repoList.appendChild(li);
-          } else {
-            repos.forEach((r) => {
-              const li = document.createElement("li");
-              const link = document.createElement("a");
-              link.href = r.html_url;
-              link.target = "_blank";
-              link.rel = "noopener noreferrer";
-              link.textContent = r.name;
-              li.appendChild(link);
-              const meta = document.createElement("div");
-              meta.className = "repo-meta";
-              const parts = [];
-              if (r.language) parts.push(r.language);
-              if (r.stargazers_count != null) {
-                parts.push("★ " + this.formatNumber(r.stargazers_count));
-              }
-              const w = this.repoWatchersCount(r);
-              parts.push("Watchers " + this.formatNumber(w));
-              if (r.forks != null) {
-                parts.push("Forks " + this.formatNumber(r.forks));
-              }
-              if (r.updated_at) {
-                try {
-                  parts.push(
-                    "업데이트: " +
-                      new Date(r.updated_at).toLocaleDateString("ko-KR")
-                  );
-                } catch {
-                  parts.push("업데이트: " + r.updated_at);
-                }
-              }
-              meta.textContent = parts.join(" · ");
-              li.appendChild(meta);
-              this.repoList.appendChild(li);
-            });
-          }
+          this.populateReposSection(repos);
           this.reposCard.classList.add("visible");
         } catch (err) {
-          this.showError(err.message || "네트워크 오류가 발생했습니다.");
+          this.showError(err.message || "Network error.");
         } finally {
           this.setLoading(false);
         }
