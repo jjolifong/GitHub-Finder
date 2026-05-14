@@ -768,10 +768,22 @@
       renderProfileTable(user) {
         const rows = [];
 
-        const company =
-          user.company != null ? String(user.company).trim() : "";
-        if (company) {
-          this.pushTableRow(rows, "Company (회사)", this.escapeHtml(company));
+        const companyRaw = user.company;
+        if (companyRaw !== null && companyRaw !== undefined) {
+          const company =
+            typeof companyRaw === "string"
+              ? companyRaw.trim()
+              : String(companyRaw).trim();
+          if (
+            company.length > 0 &&
+            company.toLowerCase() !== "null"
+          ) {
+            this.pushTableRow(
+              rows,
+              "Company (회사)",
+              this.escapeHtml(company)
+            );
+          }
         }
 
         const blog = user.blog != null ? String(user.blog).trim() : "";
