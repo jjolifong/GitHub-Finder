@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GitHub Finder</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --accent: #58a6ff;
+      --accent-hover: #79b8ff;
+      --danger: #f85149;
+      --success: #3fb950;
+      --radius: 10px;
+      --font: "Segoe UI", system-ui, -apple-system, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .wrap {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 2rem 1.25rem 3rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    header h1 {
+      margin: 0 0 0.5rem;
+      font-size: 1.75rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .search-row {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .search-row input {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .search-row input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.2);
+    }
+
+    .search-row input::placeholder {
+      color: var(--muted);
+    }
+
+    .search-row button {
+      padding: 0.75rem 1.25rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: var(--radius);
+      background: var(--accent);
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+
+    .search-row button:hover:not(:disabled) {
+      background: var(--accent-hover);
+    }
+
+    .search-row button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .message {
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius);
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      display: none;
+    }
+
+    .message.visible {
+      display: block;
+    }
+
+    .message.warn {
+      background: rgba(248, 81, 73, 0.12);
+      border: 1px solid rgba(248, 81, 73, 0.35);
+      color: #ff7b72;
+    }
+
+    .message.info {
+      background: rgba(88, 166, 255, 0.1);
+      border: 1px solid rgba(88, 166, 255, 0.3);
+      color: var(--accent-hover);
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+      display: none;
+    }
+
+    .card.visible {
+      display: block;
+    }
+
+    .profile {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.25rem;
+      align-items: flex-start;
+    }
+
+    .profile img.avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      object-fit: cover;
+    }
+
+    .profile-body {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .profile-body h2 {
+      margin: 0 0 0.25rem;
+      font-size: 1.35rem;
+    }
+
+    .profile-body .login {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .profile-details {
+      margin: 0 0 0.75rem;
+      padding: 0;
+      list-style: none;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .profile-details li {
+      margin-bottom: 0.35rem;
+      word-break: break-word;
+    }
+
+    .profile-details a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .profile-details a:hover {
+      text-decoration: underline;
+    }
+
+    .profile-details .label {
+      color: var(--muted);
+      font-weight: 500;
+      margin-right: 0.35rem;
+    }
+
+    .btn-profile {
+      display: inline-block;
+      margin-top: 0.5rem;
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--accent);
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .btn-profile:hover {
+      background: #21262d;
+      border-color: var(--accent);
+      color: var(--accent-hover);
+    }
+
+    .stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    .stat {
+      font-size: 0.9rem;
+    }
+
+    .stat strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .stat span {
+      color: var(--muted);
+    }
+
+    .contrib-wrap {
+      margin-top: 1.25rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .contrib-wrap h3 {
+      margin: 0 0 0.75rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .contrib-wrap img {
+      width: 100%;
+      max-width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+    }
+
+    .repos h3 {
+      margin: 0 0 1rem;
+      font-size: 1.05rem;
+      font-weight: 600;
+    }
+
+    .repo-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .repo-list li {
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 0;
+    }
+
+    .repo-list li:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .repo-list a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .repo-list a:hover {
+      text-decoration: underline;
+    }
+
+    .repo-meta {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 0.25rem;
+    }
+
+    .loading {
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+    }
+
+    .loading.visible {
+      display: flex;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>GitHub Finder</h1>
+      <p>GitHub 사용자명으로 프로필과 최근 저장소를 조회합니다.</p>
+    </header>
+
+    <form class="search-row" id="searchForm" autocomplete="off">
+      <input
+        type="text"
+        id="usernameInput"
+        placeholder="사용자명 (예: octocat)"
+        aria-label="GitHub 사용자명"
+      />
+      <button type="submit" id="searchBtn">검색</button>
+    </form>
+
+    <div class="message warn" id="msgEmpty" role="status"></div>
+    <div class="message warn" id="msgError" role="status"></div>
+    <div class="message info" id="msgInfo" role="status"></div>
+
+    <div class="loading" id="loading" aria-busy="true" aria-label="불러오는 중">
+      <div class="spinner" role="presentation"></div>
+    </div>
+
+    <section class="card" id="profileCard" aria-live="polite">
+      <div class="profile">
+        <img class="avatar" id="avatar" src="" alt="" width="120" height="120" />
+        <div class="profile-body">
+          <h2 id="displayName"></h2>
+          <div class="login" id="loginName"></div>
+          <ul class="profile-details" id="profileDetails"></ul>
+          <div class="stats">
+            <div class="stat"><strong id="followers">0</strong> <span>팔로워</span></div>
+            <div class="stat"><strong id="following">0</strong> <span>팔로잉</span></div>
+            <div class="stat"><strong id="publicRepos">0</strong> <span>공개 저장소</span></div>
+            <div class="stat"><strong id="publicGists">0</strong> <span>공개 Gist</span></div>
+          </div>
+          <a class="btn-profile" id="viewProfileBtn" href="#" target="_blank" rel="noopener noreferrer">View Profile</a>
+        </div>
+      </div>
+      <div class="contrib-wrap">
+        <h3>기여 활동</h3>
+        <img id="contribChart" src="" alt="기여 그래프" width="721" height="112" loading="lazy" />
+      </div>
+    </section>
+
+    <section class="card repos" id="reposCard">
+      <h3>최신 저장소</h3>
+      <ul class="repo-list" id="repoList"></ul>
+    </section>
+  </div>
+
+  <script>
+    class GitHubFinder {
+      constructor() {
+        this.form = document.getElementById("searchForm");
+        this.input = document.getElementById("usernameInput");
+        this.btn = document.getElementById("searchBtn");
+        this.msgEmpty = document.getElementById("msgEmpty");
+        this.msgError = document.getElementById("msgError");
+        this.msgInfo = document.getElementById("msgInfo");
+        this.loading = document.getElementById("loading");
+        this.profileCard = document.getElementById("profileCard");
+        this.reposCard = document.getElementById("reposCard");
+        this.avatar = document.getElementById("avatar");
+        this.displayName = document.getElementById("displayName");
+        this.loginName = document.getElementById("loginName");
+        this.profileDetails = document.getElementById("profileDetails");
+        this.followers = document.getElementById("followers");
+        this.following = document.getElementById("following");
+        this.publicRepos = document.getElementById("publicRepos");
+        this.publicGists = document.getElementById("publicGists");
+        this.viewProfileBtn = document.getElementById("viewProfileBtn");
+        this.contribChart = document.getElementById("contribChart");
+        this.repoList = document.getElementById("repoList");
+
+        this.form.addEventListener("submit", (e) => this.onSubmit(e));
+      }
+
+      hideMessages() {
+        this.msgEmpty.classList.remove("visible");
+        this.msgError.classList.remove("visible");
+        this.msgInfo.classList.remove("visible");
+      }
+
+      showEmpty() {
+        this.hideMessages();
+        this.msgEmpty.textContent = "사용자명을 입력한 뒤 검색해 주세요.";
+        this.msgEmpty.classList.add("visible");
+      }
+
+      show404() {
+        this.hideMessages();
+        this.msgError.textContent =
+          "해당 사용자를 찾을 수 없습니다. (404) 사용자명을 확인해 주세요.";
+        this.msgError.classList.add("visible");
+      }
+
+      showError(text) {
+        this.hideMessages();
+        this.msgError.textContent = text;
+        this.msgError.classList.add("visible");
+      }
+
+      setLoading(on) {
+        this.loading.classList.toggle("visible", on);
+        this.loading.setAttribute("aria-busy", on ? "true" : "false");
+        this.btn.disabled = on;
+      }
+
+      hideResults() {
+        this.profileCard.classList.remove("visible");
+        this.reposCard.classList.remove("visible");
+        this.repoList.innerHTML = "";
+        this.profileDetails.innerHTML = "";
+        this.contribChart.removeAttribute("src");
+      }
+
+      escapeHtml(str) {
+        if (str == null) return "";
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      formatNumber(n) {
+        return typeof n === "number" ? n.toLocaleString("ko-KR") : "0";
+      }
+
+      formatMemberSince(iso) {
+        if (!iso) return "";
+        const d = new Date(iso);
+        if (Number.isNaN(d.getTime())) return iso;
+        return new Intl.DateTimeFormat("ko-KR", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          weekday: "long",
+        }).format(d);
+      }
+
+      normalizeBlogUrl(blog) {
+        const t = String(blog).trim();
+        if (!t) return "";
+        if (/^https?:\/\//i.test(t)) return t;
+        return "https://" + t;
+      }
+
+      renderProfileDetails(user) {
+        const items = [];
+        const pushRow = (label, html) => {
+          if (!html) return;
+          items.push(`<li><span class="label">${this.escapeHtml(label)}</span>${html}</li>`);
+        };
+
+        if (user.company) {
+          pushRow("회사", this.escapeHtml(user.company));
+        }
+        if (user.blog) {
+          const url = this.normalizeBlogUrl(user.blog);
+          const safe = this.escapeHtml(url);
+          const text = this.escapeHtml(String(user.blog).trim());
+          pushRow("웹사이트", `<a href="${safe}" target="_blank" rel="noopener noreferrer">${text}</a>`);
+        }
+        if (user.location) {
+          pushRow("위치", this.escapeHtml(user.location));
+        }
+        if (user.created_at) {
+          pushRow("가입일", this.escapeHtml(this.formatMemberSince(user.created_at)));
+        }
+
+        this.profileDetails.innerHTML = items.join("");
+      }
+
+      contribChartUrl(login) {
+        const base = "https://ghchart.ssh.imtqy.com/";
+        return base + encodeURIComponent(login);
+      }
+
+      repoWatchersCount(r) {
+        if (typeof r.subscribers_count === "number") return r.subscribers_count;
+        if (typeof r.watchers_count === "number") return r.watchers_count;
+        if (typeof r.watchers === "number") return r.watchers;
+        return 0;
+      }
+
+      async onSubmit(e) {
+        e.preventDefault();
+        const username = this.input.value.trim();
+
+        this.hideMessages();
+        this.hideResults();
+
+        if (!username) {
+          this.showEmpty();
+          return;
+        }
+
+        this.setLoading(true);
+
+        const userUrl =
+          "https://api.github.com/users/" + encodeURIComponent(username);
+        const reposUrl =
+          "https://api.github.com/users/" +
+          encodeURIComponent(username) +
+          "/repos?sort=updated&direction=desc&per_page=10";
+
+        try {
+          const userRes = await fetch(userUrl);
+
+          if (userRes.status === 404) {
+            this.show404();
+            return;
+          }
+
+          if (!userRes.ok) {
+            throw new Error("프로필을 불러오지 못했습니다. (" + userRes.status + ")");
+          }
+
+          const user = await userRes.json();
+          const login = user.login || username;
+
+          this.avatar.src = user.avatar_url || "";
+          this.avatar.alt = login + " 프로필 이미지";
+
+          const name = user.name || login;
+          this.displayName.textContent = name;
+          this.loginName.textContent = "@" + login;
+
+          this.followers.textContent = this.formatNumber(user.followers);
+          this.following.textContent = this.formatNumber(user.following);
+          this.publicRepos.textContent = this.formatNumber(user.public_repos);
+          this.publicGists.textContent = this.formatNumber(user.public_gists);
+
+          this.renderProfileDetails(user);
+
+          const profileUrl = user.html_url || "https://github.com/" + encodeURIComponent(login);
+          this.viewProfileBtn.href = profileUrl;
+
+          this.contribChart.src = this.contribChartUrl(login);
+          this.contribChart.alt = login + " 기여 그래프";
+
+          this.profileCard.classList.add("visible");
+
+          const reposRes = await fetch(reposUrl);
+
+          if (!reposRes.ok) {
+            this.hideMessages();
+            this.msgInfo.textContent =
+              "저장소 목록은 가져오지 못했지만 프로필은 표시됩니다.";
+            this.msgInfo.classList.add("visible");
+            this.reposCard.classList.add("visible");
+            return;
+          }
+
+          const repos = await reposRes.json();
+
+          this.repoList.innerHTML = "";
+          if (!repos.length) {
+            const li = document.createElement("li");
+            li.textContent = "공개 저장소가 없습니다.";
+            li.style.color = "var(--muted)";
+            this.repoList.appendChild(li);
+          } else {
+            repos.forEach((r) => {
+              const li = document.createElement("li");
+              const link = document.createElement("a");
+              link.href = r.html_url;
+              link.target = "_blank";
+              link.rel = "noopener noreferrer";
+              link.textContent = r.name;
+              li.appendChild(link);
+              const meta = document.createElement("div");
+              meta.className = "repo-meta";
+              const parts = [];
+              if (r.language) parts.push(r.language);
+              if (r.stargazers_count != null) {
+                parts.push("★ " + this.formatNumber(r.stargazers_count));
+              }
+              const w = this.repoWatchersCount(r);
+              parts.push("Watchers " + this.formatNumber(w));
+              if (r.forks != null) {
+                parts.push("Forks " + this.formatNumber(r.forks));
+              }
+              if (r.updated_at) {
+                try {
+                  parts.push(
+                    "업데이트: " +
+                      new Date(r.updated_at).toLocaleDateString("ko-KR")
+                  );
+                } catch {
+                  parts.push("업데이트: " + r.updated_at);
+                }
+              }
+              meta.textContent = parts.join(" · ");
+              li.appendChild(meta);
+              this.repoList.appendChild(li);
+            });
+          }
+          this.reposCard.classList.add("visible");
+        } catch (err) {
+          this.showError(err.message || "네트워크 오류가 발생했습니다.");
+        } finally {
+          this.setLoading(false);
+        }
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      new GitHubFinder();
+    });
+  </script>
+</body>
+</html>
