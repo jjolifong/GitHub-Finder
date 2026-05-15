@@ -587,7 +587,7 @@
           <a class="btn-profile" id="viewProfileBtn" href="#" target="_blank" rel="noopener noreferrer">View Profile</a>
         </div>
       </div>
-      <div class="contrib-wrap">
+      <div class="contrib-wrap" id="contribWrap">
         <h3>Contributions</h3>
         <img
           id="contribChart"
@@ -634,6 +634,7 @@
         this.publicGists = document.getElementById("publicGists");
         this.viewProfileBtn = document.getElementById("viewProfileBtn");
         this.contribChart = document.getElementById("contribChart");
+        this.contribWrap = document.getElementById("contribWrap");
         this.repoList = document.getElementById("repoList");
         this.reposLoadMoreWrap = document.getElementById("reposLoadMoreWrap");
         this.reposLoadMoreBtn = document.getElementById("reposLoadMoreBtn");
@@ -649,6 +650,12 @@
         this.reposLoadMoreBtn.addEventListener("click", () =>
           this.onReposLoadMore()
         );
+        this.contribChart.addEventListener("error", () => {
+          this.contribWrap.hidden = true;
+        });
+        this.contribChart.addEventListener("load", () => {
+          this.contribWrap.hidden = false;
+        });
         this.applyTheme(this.readStoredTheme(), false);
       }
 
@@ -720,6 +727,7 @@
         this.profileTableBody.innerHTML = "";
         this.profileTableWrap.classList.add("is-empty");
         this.contribChart.removeAttribute("src");
+        this.contribWrap.hidden = false;
       }
 
       escapeHtml(str) {
@@ -769,6 +777,7 @@
         const rows = [];
 
         const companyRaw = user.company;
+        let companyCell = "-";
         if (companyRaw !== null && companyRaw !== undefined) {
           const company =
             typeof companyRaw === "string"
@@ -778,13 +787,10 @@
             company.length > 0 &&
             company.toLowerCase() !== "null"
           ) {
-            this.pushTableRow(
-              rows,
-              "Company (회사)",
-              this.escapeHtml(company)
-            );
+            companyCell = this.escapeHtml(company);
           }
         }
+        this.pushTableRow(rows, "Company (회사)", companyCell);
 
         const blog = user.blog != null ? String(user.blog).trim() : "";
         if (blog) {
@@ -935,30 +941,18 @@
       }
 
       async fetchAllReposForUser(login) {
-        const all = [];
-        let page = 1;
         const perPage = 100;
-        const maxPages = 50;
-        while (page <= maxPages) {
-          const url =
-            "https://api.github.com/users/" +
-            encodeURIComponent(login) +
-            "/repos?sort=updated&direction=desc&per_page=" +
-            perPage +
-            "&page=" +
-            page;
-          const res = await fetch(url);
-          if (!res.ok) {
-            if (page === 1) return null;
-            break;
-          }
-          const chunk = await res.json();
-          if (!Array.isArray(chunk) || chunk.length === 0) break;
-          all.push(...chunk);
-          if (chunk.length < perPage) break;
-          page++;
-        }
-        return all;
+        const url =
+          "https://api.github.com/users/" +
+          encodeURIComponent(login) +
+          "/repos?sort=updated&direction=desc&per_page=" +
+          perPage +
+          "&page=1";
+        const res = await fetch(url);
+        if (!res.ok) return null;
+        const list = await res.json();
+        if (!Array.isArray(list)) return [];
+        return list;
       }
 
       async onSubmit(e) {
